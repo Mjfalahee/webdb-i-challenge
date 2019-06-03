@@ -11,7 +11,7 @@ server.use(express.json());
 function ValidateId(req, res, next) {
     if (req.params.id) {
         db.findById(req.params.id)
-            then(account => {
+            .then(account => {
                 if (account) {
                     req.account = account;
                     next();
@@ -65,7 +65,6 @@ server.get('/', (req, res) => {
                     message: 'No accounts found.'
                 });
             }
-            
         })
         .catch(error => {
             res.status(500).json({
@@ -92,6 +91,7 @@ server.post('/', ValidateAccount, (req, res) => {
         })
 })
 
+//delete an account
 server.delete('/:id', ValidateId, (req,res) => {
     db.remove(req.params.id)
         .then(removed => {
@@ -99,8 +99,28 @@ server.delete('/:id', ValidateId, (req,res) => {
                 message: 'Account removed successfully.'
             })
         })
+        .catch(error => {
+            res.status(500).json({
+                message: "Account couldn't be removed successfully."
+            })
+        })
 })
 
+//update an account
+
+server.put('/:id', ValidateId, ValidateAccount, (req, res) => {
+    db.update(req.params.id, req.body)
+        .then(updated => {
+            res.status(200).json({
+                message: 'Account was successfully updated.'
+            });
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: 'Error while updating the account.'
+            });
+        })
+})
 
 
 
